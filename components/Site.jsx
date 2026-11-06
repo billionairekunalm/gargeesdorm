@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { motion, useScroll, useMotionValueEvent, useMotionValue, useSpring, useTransform } from "framer-motion";
 import Tower from "./TowerLoader";
+import Reviews from "./Reviews";
 import { SITE, WA, CALL, CALL2, MAP_LINK, MAP_EMBED, FAQ } from "@/lib/data";
 
 const rise = { hidden: { opacity: 0, y: 44 }, show: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.8, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] } }) };
@@ -303,6 +304,7 @@ export default function Site() {
       <Bunk />
       <Gallery />
       <Sea />
+      <Reviews />
       <Floor />
       <Location />
       <Faq />
