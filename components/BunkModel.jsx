@@ -2,7 +2,8 @@
 import { useFrame } from "@react-three/fiber";
 import { RoundedBox, Sparkles } from "@react-three/drei";
 import * as THREE from "three";
-import { useMemo, useRef } from "react";
+import { createContext, useContext, useMemo, useRef } from "react";
+const LiteCtx = createContext(false);
 import BunkDetails from "./BunkDetails";
 
 /* ---------- procedural textures (no files) ---------- */
@@ -47,10 +48,12 @@ const paint = { color: "#f4f5f7", roughness: 0.42, metalness: 0.15 };
 
 /* square steel tube between two points */
 function Beam({ a, b, w = 0.055, d = 0.055 }) {
+  const lite = useContext(LiteCtx);
   const { pos, quat, len } = useMemo(() => {
     const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), dir = B.clone().sub(A);
     return { pos: A.clone().add(B).multiplyScalar(0.5), quat: new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize()), len: dir.length() };
   }, [a, b]);
+  if (lite) return <mesh position={pos} quaternion={quat}><boxGeometry args={[w, len, d]} /><meshStandardMaterial {...paint} /></mesh>;
   return (
     <RoundedBox args={[w, len, d]} radius={Math.min(w, d) * 0.3} smoothness={2} position={pos} quaternion={quat}>
       <meshStandardMaterial {...paint} />
@@ -59,11 +62,12 @@ function Beam({ a, b, w = 0.055, d = 0.055 }) {
 }
 
 function Curtain({ open, frozen }) {
+  const lite = useContext(LiteCtx);
   const done = useRef(false);
   const { curtain: curtainMap, fabricBump: bump } = useTextures();
   const band = useRef();
   const geo = useMemo(() => {
-    const g = new THREE.PlaneGeometry(0.92, 1.02, 72, 36);
+    const g = new THREE.PlaneGeometry(0.92, 1.02, lite ? 26 : 72, lite ? 12 : 36);
     g.userData.base = g.attributes.position.array.slice();
     return g;
   }, []);
@@ -135,7 +139,7 @@ export function Bunk({ curtainOpen, lite = false }) {
   const { linen, fabricBump, sheetBump, wool } = useTextures();
   const L = 1.02, Z = 0.46;
   return (
-    <group>
+    <LiteCtx.Provider value={lite}><group>
       {/* posts */}
       {[[-L, -Z], [-L, Z], [L, -Z], [L, Z]].map(([x, z], i) => <Beam key={i} a={[x, 0, z]} b={[x, 2.05, z]} w={0.07} d={0.07} />)}
       {/* side + end rails for both bunks (thicker side rails like real dorm frames) */}
@@ -197,7 +201,7 @@ export function Bunk({ curtainOpen, lite = false }) {
       </group>
       {!lite && <BunkDetails />}
       <Curtain open={curtainOpen} frozen={lite} />
-    </group>
+    </group></LiteCtx.Provider>
   );
 }
 

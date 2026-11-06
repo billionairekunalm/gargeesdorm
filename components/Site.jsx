@@ -177,7 +177,7 @@ function Gallery() {
           ))}
           <Rise i={3} className="g g3">
             <Tilt className="photo vid">
-              <video src="/video/tour.mp4" poster="/img/tour-poster.jpg" autoPlay muted loop playsInline preload="metadata" aria-label="Short video tour of the dormitory" />
+              <video src="/video/tour.mp4" poster="/img/tour-poster.jpg" muted loop playsInline preload="none" ref={(v) => { if (v && !v.dataset.io) { v.dataset.io = 1; new IntersectionObserver(([e]) => { e.isIntersecting ? v.play().catch(() => {}) : v.pause(); }).observe(v); } }} aria-label="Short video tour of the dormitory" />
               <span>Quick walk-through</span>
             </Tilt>
           </Rise>

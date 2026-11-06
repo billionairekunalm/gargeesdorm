@@ -97,14 +97,14 @@ function Building({ active }) {
 }
 
 export default function Tower() {
-  const wrap = useRef(); const [active, setActive] = useState(false);
+  const wrap = useRef(); const [active, setActive] = useState(false); const [vis, setVis] = useState(false);
   useEffect(() => {
-    const io = new IntersectionObserver(([e]) => e.isIntersecting && setActive(true), { threshold: 0.35 });
+    const io = new IntersectionObserver(([e]) => { setVis(e.isIntersecting); if (e.isIntersecting) setActive(true); }, { threshold: 0.2 });
     io.observe(wrap.current); return () => io.disconnect();
   }, []);
   return (
     <div ref={wrap} className="tower-canvas" style={{ position: "relative" }} role="img" aria-label="3D animation of Bay View Tower with Gargee's Dormitory highlighted on the 4th floor">
-      <Canvas dpr={[1, 1.8]} camera={{ fov: 36, position: [7.4, 5.2, 10.2] }} onCreated={({ camera }) => camera.lookAt(0, 2.3, 0)}>
+      <Canvas frameloop={vis ? "always" : "never"} dpr={[1, 1.5]} camera={{ fov: 36, position: [7.4, 5.2, 10.2] }} onCreated={({ camera }) => camera.lookAt(0, 2.3, 0)}>
         <ambientLight intensity={0.8} />
         <directionalLight position={[4, 6, 5]} intensity={1.7} color="#fff4e0" />
         <Environment resolution={64}><Lightformer form="rect" intensity={2} position={[0, 5, 5]} scale={[10, 4, 1]} /></Environment>

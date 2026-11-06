@@ -1,12 +1,10 @@
 "use client";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { ContactShadows, Environment, Lightformer, Sparkles } from "@react-three/drei";
+import { Environment, Lightformer, Sparkles, PerformanceMonitor } from "@react-three/drei";
 import { Bunk, AC } from "./BunkModel";
 import { ExtraBeds, SeaWindow } from "./RoomExtras";
-import { EffectComposer, N8AO, Bloom, Vignette, SMAA, ToneMapping } from "@react-three/postprocessing";
-import { ToneMappingMode } from "postprocessing";
 import * as THREE from "three";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const { clamp, damp, smoothstep, lerp } = THREE.MathUtils;
 
@@ -58,6 +56,19 @@ function Room() {
   );
 }
 
+/* weak devices: drive the render loop ourselves at 30fps (steadier than an uneven 60) and only while the 3D is on screen */
+function Throttle({ run, fps = 30 }) {
+  const { advance } = useThree();
+  useEffect(() => {
+    if (!run) return;
+    let id, last = 0;
+    const loop = (t) => { id = requestAnimationFrame(loop); if (t - last >= 1000 / fps - 2) { last = t; advance(t / 1000); } };
+    id = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(id);
+  }, [run, fps, advance]);
+  return null;
+}
+
 function Rig() {
   const { size, camera, pointer } = useThree();
   const bed = useRef(), curtain = useRef(0.8), reveal = useRef(0);
@@ -69,18 +80,34 @@ function Rig() {
     const id = setTimeout(() => scene.traverse((m) => { if (m.isMesh && !m.material?.isShaderMaterial && !m.material?.transparent) { m.castShadow = true; m.receiveShadow = true; } }), 400);
     return () => clearTimeout(id);
   }, [scene]);
+  const [showExtra, setShowExtra] = useState(false);
   useEffect(() => {
-    stages.current = ["hero", "bunk", "sea"].map((id) => document.getElementById(id));
+    // mount the extra beds in a quiet moment shortly after load (they stay hidden until the sea section)
+    const ric = window.requestIdleCallback || ((f) => setTimeout(f, 2200));
+    const id = ric(() => setShowExtra(true), { timeout: 4000 });
+    return () => { (window.cancelIdleCallback || clearTimeout)(id); };
+  }, []);
+  useEffect(() => {
+    // measure the three 3D sections once (and on resize / layout change) instead of reading layout every frame
+    const measure = () => {
+      stages.current = ["hero", "bunk", "sea"].map((id) => {
+        const el = document.getElementById(id);
+        if (!el) return null;
+        const r = el.getBoundingClientRect();
+        return { top: r.top + window.scrollY, span: Math.max(1, r.height - (el.dataset.sticky ? window.innerHeight : 0)) };
+      });
+    };
+    measure();
+    const t1 = setTimeout(measure, 1200), t2 = setTimeout(measure, 4000);
+    const ro = new ResizeObserver(measure); ro.observe(document.body);
+    window.addEventListener("resize", measure);
+    return () => { clearTimeout(t1); clearTimeout(t2); ro.disconnect(); window.removeEventListener("resize", measure); };
   }, []);
 
   useFrame(({ clock }, dt) => {
     let f = 0;
-    for (const el of stages.current) {
-      if (!el) continue;
-      const r = el.getBoundingClientRect();
-      const span = Math.max(1, r.height - (el.dataset.sticky ? window.innerHeight : 0));
-      f += clamp(-r.top / span, 0, 1);
-    }
+    const y = window.scrollY;
+    for (const st of stages.current) { if (st) f += clamp((y - st.top) / st.span, 0, 1); }
     fs.current = damp(fs.current, f, 5, dt);
     const s = fs.current;
     const i = Math.min(2, Math.floor(s)), t = smoothstep(s - i, 0, 1);
@@ -120,36 +147,48 @@ function Rig() {
         <Bunk curtainOpen={curtain} />
       </group>
       <AC />
-      <ExtraBeds reveal={reveal} />
+      {showExtra && <ExtraBeds reveal={reveal} />}
       <Room />
     </>
   );
 }
 
 export default function Scene() {
+  const [low, setLow] = useState(null);      // null until measured on the client
+  const [active, setActive] = useState(true);
+  useEffect(() => {
+    const weak = window.innerWidth < 820 || (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
+    setLow(weak);
+  }, []);
+  useEffect(() => {
+    // stop rendering while the visitor is scrolled into the opaque sections (nothing of the 3D scene is visible there)
+    const ids = ["hero", "bunk", "sea"], on = new Set();
+    const io = new IntersectionObserver((es) => {
+      es.forEach((e) => (e.isIntersecting ? on.add(e.target.id) : on.delete(e.target.id)));
+      setActive(on.size > 0);
+    }, { rootMargin: "120px" });
+    ids.forEach((id) => { const el = document.getElementById(id); if (el) io.observe(el); });
+    return () => io.disconnect();
+  }, []);
+  if (low === null) return <div className="scene" aria-hidden="true" />;
+
   return (
     <div className="scene" aria-hidden="true">
-      <Canvas dpr={[1, 1.8]} camera={{ fov: 38, position: [1.4, 1.6, 5.4] }} shadows gl={{ antialias: true, alpha: true }} onCreated={({ gl }) => { gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.35; }}>
+      <Canvas frameloop={low ? "never" : active ? "always" : "never"} dpr={low ? [1, 1.25] : [1, 1.5]} camera={{ fov: 38, position: [1.4, 1.6, 5.4] }} shadows gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }} onCreated={({ gl }) => { gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.15; }}>
+        <PerformanceMonitor onDecline={() => setLow(true)} />
+        {low && <Throttle run={active} fps={30} />}
         <color attach="background" args={["#f5ebd9"]} />
-                <ambientLight intensity={0.95} />
+        <ambientLight intensity={0.95} />
         <hemisphereLight args={["#fff6e8", "#d9c9a8", 0.8]} />
-        <directionalLight position={[3, 5, 4]} intensity={2.6} color="#fff1d6" castShadow shadow-mapSize={[2048, 2048]} shadow-bias={-0.0004} shadow-camera-left={-4} shadow-camera-right={4} shadow-camera-top={4} shadow-camera-bottom={-3} />
-        <Environment resolution={128}>
+        <directionalLight position={[3, 5, 4]} intensity={2.6} color="#fff1d6" castShadow shadow-mapSize={low ? [512, 512] : [1024, 1024]} shadow-bias={-0.0006} shadow-camera-left={-4} shadow-camera-right={4} shadow-camera-top={4} shadow-camera-bottom={-3} />
+        <Environment resolution={low ? 32 : 64}>
           <Lightformer form="rect" intensity={2.2} position={[0, 5, 5]} scale={[10, 4, 1]} />
           <Lightformer form="rect" intensity={1.4} position={[-6, 2, 2]} scale={[4, 6, 1]} color="#cfe6ff" />
           <Lightformer form="rect" intensity={0.9} position={[6, 1.5, 3]} scale={[3, 5, 1]} color="#ffd9a6" />
           <Lightformer form="ring" intensity={1.4} position={[0, 4, -3]} scale={5} color="#ffffff" />
         </Environment>
         <Rig />
-        <ContactShadows position={[0, 0.005, 0]} opacity={0.45} scale={8} blur={2.6} far={3} />
-        <EffectComposer multisampling={0} enableNormalPass>
-          <N8AO aoRadius={0.6} distanceFalloff={1.2} intensity={1.5} quality="medium" />
-          <Bloom intensity={0.22} luminanceThreshold={0.92} mipmapBlur />
-          <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
-          <Vignette offset={0.4} darkness={0.12} />
-          <SMAA />
-        </EffectComposer>
-        <Sparkles count={50} scale={[9, 4, 6]} position={[-1, 2, 1]} size={2.2} speed={0.25} color="#ffe2a6" opacity={0.7} />
+        <Sparkles count={low ? 0 : 30} scale={[9, 4, 6]} position={[-1, 2, 1]} size={2.2} speed={0.25} color="#ffe2a6" opacity={0.7} />
       </Canvas>
     </div>
   );

@@ -8,11 +8,13 @@ import { Bunk, AC } from "./BunkModel";
 /* ---------------- more beds for the "sea view" scene ---------------- */
 const BEDS = [[-3.4, 0.95], [-8.6, 0.5], [2.4, 0.0], [4.8, 0.95]]; // [x, curtain tie-back]
 export function ExtraBeds({ reveal }) {
-  const g = useRef();
+  const g = useRef(), warm = useRef(0);
   const wall = useMemo(() => { const t = new THREE.TextureLoader().load("/tex/wall.jpg"); t.colorSpace = THREE.SRGBColorSpace; return t; }, []);
   const opens = useMemo(() => BEDS.map(([, o]) => ({ current: o })), []);
   useFrame(() => {
     const k = reveal.current; if (!g.current) return;
+    // first frames: draw once (flat) so geometry/textures/shaders upload now, not in the middle of a scroll
+    if (warm.current++ < 3) { g.current.visible = true; g.current.scale.set(1, 0.001, 1); return; }
     g.current.visible = k > 0.01;
     g.current.scale.set(1, Math.max(0.001, k), 1);
   });
