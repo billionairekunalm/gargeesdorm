@@ -110,7 +110,7 @@ function Rig() {
       const dist = Math.hypot(p[0] - l[0], p[1] - l[1], (p[2] * zoom) - l[2]);
       const h = 2 * dist * Math.tan(THREE.MathUtils.degToRad(19));
       l[0] = lerp(l[0], 0, heroW);
-      l[1] += 0.3 * h * heroW - 0.3 * (1 - heroW);
+      l[1] += 0.36 * h * heroW - 0.3 * (1 - heroW);
     }
     camera.position.set(p[0] + pointer.x * 0.25, p[1] + pointer.y * 0.12, (p[2] - 0.0) * zoom + (narrow ? 0 : 0));
     look.current.set(l[0], l[1], l[2]);

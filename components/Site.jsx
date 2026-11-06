@@ -55,16 +55,19 @@ function Hero() {
       <div className="hero-in">
         <motion.p className="pill" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}><i className="dot" /> Open 24×7 · CBD Belapur, Navi Mumbai</motion.p>
         <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 1, ease: [0.22, 1, 0.36, 1] }}>
-          Navi Mumbai&apos;s best dormitory.
+          Navi Mumbai&apos;s <span className="hl">best</span> dormitory.
         </motion.h1>
         <motion.a href={WA} target="_blank" rel="noopener" className="price-ad" aria-label="Just 300 rupees per night - book on WhatsApp" initial={{ opacity: 0, scale: 0.6, rotate: -8 }} animate={{ opacity: 1, scale: 1, rotate: -2 }} transition={{ delay: 0.6, type: "spring", stiffness: 160, damping: 11 }}>
           <span className="pa-top">★ Comfortable &amp; Clean ★</span>
           <span className="pa-main"><small>JUST</small><b>₹300</b><small>PER<br />NIGHT</small></span>
-          <span className="pa-bot">Book your bed now →</span>
+          <span className="pa-perf" /><span className="pa-bot">Book your bed now <i>→</i></span><em className="sp s1">✦</em><em className="sp s2">✦</em><em className="sp s3">✦</em>
         </motion.a>
         <motion.p className="lead" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55, duration: 0.9 }}>
           <b>Comfortable. Clean. Sea view facing.</b> AC &amp; Non-AC dormitory beds with private curtain, your own socket and light, in CBD Belapur — open 24×7.
         </motion.p>
+        <motion.ul className="ticks" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75, duration: 0.8 }}>
+          <li>AC &amp; Non-AC dormitory beds</li><li>Private curtain, own socket &amp; light</li><li>Sea view facing · CBD Belapur · Open 24×7</li>
+        </motion.ul>
         <motion.div className="cta-row" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.9 }}>
           <a className="btn btn-wa" href={WA} target="_blank" rel="noopener"><WaIcon /> Book on WhatsApp</a>
           <a className="btn btn-dark" href={CALL}><PhoneIcon /> Call <span className="nm">{SITE.phone1}</span></a>
