@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { startMusic, toggleMusic, playWelcome, playRest, restDone, stopWelcome, isPlaying } from "@/lib/audio";
+import { armAudio, startMusic, toggleMusic, playWelcome, playRest, welcomeDone, restDone, stopWelcome, isPlaying } from "@/lib/audio";
 import "./intro.css";
 
 const CAPTION = "Namaste! 🙏 Welcome to Gargee's Dormitory";
-const NO_VOICE_OPEN = 3200; // doors open anyway if the browser blocks the voice
-const HOLD = 500; // open doors (with the website behind) stay visible this long before the scene fades
+const NO_VOICE_OPEN = 1800; // doors open anyway if the browser blocks the voice
+const HOLD = 150; // open doors (with the website behind) stay visible this long before the scene fades
 
 function Receptionist() {
   return (
@@ -61,25 +61,25 @@ export default function Intro() {
     const later = (fn, ms) => { const t = setTimeout(fn, ms); r.timers.push(t); return t; };
     const leave = () => {
       setPhase("leave"); document.documentElement.style.overflow = "";
-      later(() => setPhase("done"), 1000);
+      later(() => setPhase("done"), 650);
     };
     const open = () => {
       if (r.opened) return; r.opened = true;
       clearTimeout(r.fallback);
       setPhase("open");
-      later(leave, 1300 + HOLD);
-      later(() => playRest(), 700); // the rest of the welcome is spoken over the website
+      later(leave, 900 + HOLD);
     };
     const voice = () => playWelcome({
       onPlay: () => { setVoiceOn(true); clearTimeout(r.fallback); },
-      onEnd: () => later(open, 350),
+      onEnd: () => { const wasOpen = r.opened; later(open, 120); later(() => playRest(), wasOpen ? 150 : 600); }, // rest of the welcome follows, over the website
     });
-    const gest = () => { startMusic(); if (!r.opened) voice(); else if (!restDone()) playRest(); };
+    const gest = () => { startMusic(); if (!welcomeDone()) voice(); else if (!restDone()) playRest(); }; // first tap always starts the voice from "Namaste"
+    armAudio();
     startMusic();
     voice();
-    r.timers.push(setInterval(() => setN((v) => Math.min(CAPTION.length, v + 1)), 70));
+    r.timers.push(setInterval(() => setN((v) => Math.min(CAPTION.length, v + 1)), 38));
     r.fallback = later(open, NO_VOICE_OPEN); // cleared if the voice really starts
-    const evs = ["pointerdown", "keydown", "touchstart"];
+    const evs = ["pointerup", "touchend", "click", "keydown"];
     evs.forEach((e) => window.addEventListener(e, gest, { once: true }));
     const on = (e) => setPlaying(e.detail);
     window.addEventListener("gargee-audio", on);

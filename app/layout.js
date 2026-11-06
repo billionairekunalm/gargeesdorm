@@ -53,6 +53,9 @@ const jsonLd = [
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
+      <head>
+        <link rel="preload" href="/audio/welcome-short.mp3" as="audio" type="audio/mpeg" />
+      </head>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         {children}
