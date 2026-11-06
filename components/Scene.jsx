@@ -44,6 +44,7 @@ function Room() {
       <mesh position={[1.45, 1.5, -0.55]}><boxGeometry args={[13, 3, 0.1]} />{wall}</mesh>
       <mesh position={[-6.2, 0.35, -0.55]}><boxGeometry args={[2.2, 0.7, 0.1]} />{wall}</mesh>
       <mesh position={[-6.2, 2.6, -0.55]}><boxGeometry args={[2.2, 0.8, 0.1]} />{wall}</mesh>
+      <mesh position={[-2, 6.5, -0.55]}><boxGeometry args={[30, 7, 0.1]} />{wall}</mesh>
       {/* olive panel behind beds */}
       <mesh position={[0, 1.0, -0.49]}><boxGeometry args={[2.4, 2.0, 0.04]} /><meshStandardMaterial map={wallTex} color="#ffffff" roughness={0.7} /></mesh>
       {/* window frame */}
@@ -115,7 +116,7 @@ function Rig() {
     const PS = narrow ? POSES_M : POSES;
     const A = PS[i], B = PS[i + 1];
     const heroMix = 1 - clamp(s, 0, 1);
-    const zoom = narrow ? 2.15 : 1;
+    const zoom = narrow ? lerp(1.5, 2.15, smoothstep(s, 0.45, 1)) : 1; // phones: bed fills the screen in the hero, then pulls back
     const p = A.p.map((v, k) => lerp(v, B.p[k], t));
     const l = A.l.map((v, k) => lerp(v, B.l[k], t));
     // phones: bed sits low under the headline in hero, centred elsewhere
@@ -125,7 +126,7 @@ function Rig() {
       const dist = Math.hypot(p[0] - l[0], p[1] - l[1], (p[2] * zoom) - l[2]);
       const h = 2 * dist * Math.tan(THREE.MathUtils.degToRad(19));
       l[0] = lerp(l[0], 0, heroW);
-      l[1] += 0.36 * h * heroW - 0.2 * h * (1 - heroW);
+      l[1] += 0.3 * h * heroW - 0.2 * h * (1 - heroW);
     }
     camera.position.set(p[0] + pointer.x * 0.25, p[1] + pointer.y * 0.12, (p[2] - 0.0) * zoom + (narrow ? 0 : 0));
     look.current.set(l[0], l[1], l[2]);
