@@ -5,7 +5,7 @@ import { armAudio, startMusic, toggleMusic, playWelcome, playRest, welcomeDone, 
 import "./intro.css";
 
 const CAPTION = "Namaste! 🙏 Welcome to Gargee's Dormitory";
-const NO_VOICE_OPEN = 1800; // doors open anyway if the browser blocks the voice
+const NO_VOICE_OPEN = 3200; // doors open anyway if the browser blocks the voice
 const HOLD = 150; // open doors (with the website behind) stay visible this long before the scene fades
 
 function Receptionist() {
@@ -74,9 +74,7 @@ export default function Intro() {
       onEnd: () => { const wasOpen = r.opened; later(open, 120); later(() => playRest(), wasOpen ? 150 : 600); }, // rest of the welcome follows, over the website
     });
     const gest = () => { startMusic(); if (!welcomeDone()) voice(); else if (!restDone()) playRest(); }; // first tap always starts the voice from "Namaste"
-    armAudio();
-    startMusic();
-    voice();
+    armAudio(); // no autoplay on load: music + voice start only on the visitor's first tap/click
     r.timers.push(setInterval(() => setN((v) => Math.min(CAPTION.length, v + 1)), 38));
     r.fallback = later(open, NO_VOICE_OPEN); // cleared if the voice really starts
     const evs = ["pointerup", "touchend", "click", "keydown"];
