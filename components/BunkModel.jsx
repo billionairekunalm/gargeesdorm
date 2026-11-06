@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { RoundedBox, Sparkles } from "@react-three/drei";
 import * as THREE from "three";
 import { useMemo, useRef } from "react";
+import BunkDetails from "./BunkDetails";
 
 /* ---------- procedural textures (no files) ---------- */
 function canvasTex(w, h, draw, repeat = [1, 1], srgb = true) {
@@ -29,7 +30,14 @@ export function useTextures() {
       linen: photo("/tex/sheet.jpg", [1.4, 1]),
       sheetBump: photo("/tex/sheet.jpg", [1.4, 1], false),
       wool: photo("/tex/blanket.jpg", [1, 1]),
-      curtain: photo("/tex/curtain.jpg", [2, 1]),
+      curtain: canvasTex(256, 256, (g, w, h) => {
+        const gr = g.createLinearGradient(0, 0, w, 0);
+        for (let i = 0; i <= 16; i++) { const t = i / 16, v = 0.5 + 0.5 * Math.sin(t * Math.PI * 2 * 4); gr.addColorStop(t, `rgb(${Math.round(226 + 18 * v)},${Math.round(176 + 20 * v)},${Math.round(116 + 26 * v)})`); }
+        g.fillStyle = gr; g.fillRect(0, 0, w, h);
+        g.fillStyle = "rgba(255,240,210,.10)"; for (let x = 0; x < w; x += 3) g.fillRect(x, 0, 1, h);   // fine thread lines
+        const sh = g.createLinearGradient(0, 0, 0, h); sh.addColorStop(0, "rgba(120,70,20,.18)"); sh.addColorStop(0.3, "rgba(0,0,0,0)"); sh.addColorStop(1, "rgba(120,70,20,.10)");
+        g.fillStyle = sh; g.fillRect(0, 0, w, h);
+      }, [1, 1]),
       fabricBump,
     };
   }, []);
@@ -50,7 +58,8 @@ function Beam({ a, b, w = 0.055, d = 0.055 }) {
   );
 }
 
-function Curtain({ open }) {
+function Curtain({ open, frozen }) {
+  const done = useRef(false);
   const { curtain: curtainMap, fabricBump: bump } = useTextures();
   const band = useRef();
   const geo = useMemo(() => {
@@ -59,7 +68,9 @@ function Curtain({ open }) {
     return g;
   }, []);
   useFrame(({ clock }) => {
-    const t = clock.elapsedTime, o = open.current;
+    if (frozen && done.current) return;
+    done.current = true;
+    const t = frozen ? 0 : clock.elapsedTime, o = open.current;
     const pos = geo.attributes.position, base = geo.userData.base, TIE = -0.13;
     for (let i = 0; i < pos.count; i++) {
       const bx = base[i * 3], by = base[i * 3 + 1];
@@ -80,8 +91,8 @@ function Curtain({ open }) {
         <meshStandardMaterial map={curtainMap} color="#ffffff" roughness={0.85} side={THREE.DoubleSide} bumpMap={bump} bumpScale={0.35} />
       </mesh>
       <mesh ref={band} position={[0, -0.13, 0.08]}>
-        <boxGeometry args={[1, 0.075, 0.13]} />
-        <meshStandardMaterial color="#f6dcae" roughness={0.9} />
+        <boxGeometry args={[1, 0.06, 0.07]} />
+        <meshStandardMaterial color="#f3d5a3" roughness={0.9} />
       </mesh>
     </group>
   );
@@ -120,7 +131,7 @@ function Blanket({ position, rotation = [0, 0, 0], wool, bump }) {
   );
 }
 
-export function Bunk({ curtainOpen }) {
+export function Bunk({ curtainOpen, lite = false }) {
   const { linen, fabricBump, sheetBump, wool } = useTextures();
   const L = 1.02, Z = 0.46;
   return (
@@ -184,12 +195,13 @@ export function Bunk({ curtainOpen }) {
         {[-0.09, -0.03, 0.03].map((x) => <mesh key={x} position={[x, 0.01, 0.012]}><boxGeometry args={[0.04, 0.07, 0.006]} /><meshStandardMaterial color="#e5e5e5" /></mesh>)}
         <mesh position={[0.1, 0, 0.012]}><circleGeometry args={[0.04, 20]} /><meshStandardMaterial color="#d8d8d8" /></mesh>
       </group>
-      <Curtain open={curtainOpen} />
+      {!lite && <BunkDetails />}
+      <Curtain open={curtainOpen} frozen={lite} />
     </group>
   );
 }
 
-export function AC() {
+export function AC({ lite = false }) {
   const led = useRef();
   useFrame(({ clock }) => { if (led.current) led.current.emissiveIntensity = 1.4 + Math.sin(clock.elapsedTime * 3) * 0.8; });
   return (
@@ -205,7 +217,7 @@ export function AC() {
       {/* refrigerant pipes */}
       <mesh position={[0.82, 0.05, -0.02]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.035, 0.035, 0.5, 14]} /><meshStandardMaterial color="#f1f1ee" roughness={0.7} /></mesh>
       <mesh position={[1.07, -0.42, -0.02]}><cylinderGeometry args={[0.035, 0.035, 1.0, 14]} /><meshStandardMaterial color="#f1f1ee" roughness={0.7} /></mesh>
-      <Sparkles count={30} scale={[1.2, 0.8, 0.7]} position={[0, -0.55, 0.3]} size={3} speed={0.5} color="#9fd8ff" />
+      {!lite && <Sparkles count={30} scale={[1.2, 0.8, 0.7]} position={[0, -0.55, 0.3]} size={3} speed={0.5} color="#9fd8ff" />}
     </group>
   );
 }
