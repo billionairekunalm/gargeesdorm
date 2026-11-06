@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { startMusic, toggleMusic, playWelcome, stopWelcome, isPlaying } from "@/lib/audio";
+import { startMusic, toggleMusic, playWelcome, playRest, restDone, stopWelcome, isPlaying } from "@/lib/audio";
 import "./intro.css";
 
 const CAPTION = "Namaste! 🙏 Welcome to Gargee's Dormitory";
-const NO_VOICE_OPEN = 4800; // doors open anyway if the browser blocks the voice
-const HOLD = 1400; // open doors (with the website behind) stay visible this long before the scene fades
+const NO_VOICE_OPEN = 3200; // doors open anyway if the browser blocks the voice
+const HOLD = 500; // open doors (with the website behind) stay visible this long before the scene fades
 
 function Receptionist() {
   return (
@@ -61,19 +61,20 @@ export default function Intro() {
     const later = (fn, ms) => { const t = setTimeout(fn, ms); r.timers.push(t); return t; };
     const leave = () => {
       setPhase("leave"); document.documentElement.style.overflow = "";
-      later(() => setPhase("done"), 1500);
+      later(() => setPhase("done"), 1000);
     };
     const open = () => {
       if (r.opened) return; r.opened = true;
       clearTimeout(r.fallback);
       setPhase("open");
-      later(leave, 2300 + HOLD);
+      later(leave, 1300 + HOLD);
+      later(() => playRest(), 700); // the rest of the welcome is spoken over the website
     };
     const voice = () => playWelcome({
       onPlay: () => { setVoiceOn(true); clearTimeout(r.fallback); },
       onEnd: () => later(open, 350),
     });
-    const gest = () => { startMusic(); voice(); };
+    const gest = () => { startMusic(); if (!r.opened) voice(); else if (!restDone()) playRest(); };
     startMusic();
     voice();
     r.timers.push(setInterval(() => setN((v) => Math.min(CAPTION.length, v + 1)), 70));

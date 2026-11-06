@@ -1,4 +1,4 @@
-.intro{--W:min(100vw,56.25dvh);position:fixed;inset:0;z-index:200;display:grid;place-items:center;overflow:hidden;transition:opacity 1.3s}
+.intro{--W:min(100vw,56.25dvh);position:fixed;inset:0;z-index:200;display:grid;place-items:center;overflow:hidden;transition:opacity .9s}
 .intro.leave{opacity:0;pointer-events:none}
 
 /* wall = wood + arch, with a doorway-shaped hole so the real website shows through the opened doors */
@@ -13,7 +13,7 @@
 @keyframes floatup{from{transform:translateY(0);opacity:0}15%{opacity:.9}to{transform:translateY(-105vh);opacity:0}}
 
 .istage{position:relative;z-index:2;height:100dvh;width:var(--W);container-type:size;perspective:1600px}
-.zoom{position:absolute;inset:0;transform-origin:50% 48%;transition:transform 1.6s ease}
+.zoom{position:absolute;inset:0;transform-origin:50% 48%;transition:transform 1s ease}
 .intro.leave .zoom{transform:scale(1.12)}
 
 .brand-top{position:absolute;top:1.6%;left:0;right:0;text-align:center;color:#7a1633}
@@ -26,7 +26,7 @@
 .doorway{position:absolute;box-sizing:border-box;left:9%;width:82%;top:29%;height:35%;border:1.6cqw solid #5a3a1c;border-bottom:0;border-radius:3px 3px 0 0;box-shadow:0 0 0 .6cqw #d9a441,0 14px 40px rgba(0,0,0,.35)}
 .rays{position:absolute;inset:0;opacity:0;pointer-events:none;background:radial-gradient(ellipse at 50% 60%,rgba(255,236,170,.5),transparent 70%);transition:opacity 1.5s .4s}
 .intro.open .rays{opacity:1}
-.leaf{position:absolute;top:0;bottom:0;width:50.2%;background:linear-gradient(90deg,#8a5a2c,#a8743c 45%,#7b4e25);box-shadow:inset 0 0 40px rgba(0,0,0,.35);transition:transform 2.3s cubic-bezier(.5,0,.2,1.08);backface-visibility:hidden}
+.leaf{position:absolute;top:0;bottom:0;width:50.2%;background:linear-gradient(90deg,#8a5a2c,#a8743c 45%,#7b4e25);box-shadow:inset 0 0 40px rgba(0,0,0,.35);transition:transform 1.3s cubic-bezier(.5,0,.2,1.05);backface-visibility:hidden}
 .dl{left:0;transform-origin:left center;border-right:2px solid #3a220e}
 .dr{right:0;transform-origin:right center;border-left:2px solid #3a220e}
 .intro.open .dl,.intro.leave .dl{transform:rotateY(80deg)}
