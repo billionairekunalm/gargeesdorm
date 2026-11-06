@@ -1,6 +1,6 @@
 "use client";
 import { useFrame } from "@react-three/fiber";
-import { RoundedBox, Sparkles } from "@react-three/drei";
+import { RoundedBox, Dust } from "./three-lite";
 import * as THREE from "three";
 import { createContext, useContext, useMemo, useRef } from "react";
 const LiteCtx = createContext(false);
@@ -221,7 +221,7 @@ export function AC({ lite = false }) {
       {/* refrigerant pipes */}
       <mesh position={[0.82, 0.05, -0.02]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.035, 0.035, 0.5, 14]} /><meshStandardMaterial color="#f1f1ee" roughness={0.7} /></mesh>
       <mesh position={[1.07, -0.42, -0.02]}><cylinderGeometry args={[0.035, 0.035, 1.0, 14]} /><meshStandardMaterial color="#f1f1ee" roughness={0.7} /></mesh>
-      {!lite && <Sparkles count={30} scale={[1.2, 0.8, 0.7]} position={[0, -0.55, 0.3]} size={3} speed={0.5} color="#9fd8ff" />}
+      {!lite && <Dust count={24} scale={[1.2, 0.8, 0.7]} position={[0, -0.55, 0.3]} size={0.02} speed={0.12} color="#9fd8ff" />}
     </group>
   );
 }

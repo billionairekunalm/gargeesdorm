@@ -1,5 +1,5 @@
 "use client";
-import { RoundedBox } from "@react-three/drei";
+import { RoundedBox } from "./three-lite";
 import * as THREE from "three";
 import { useMemo } from "react";
 

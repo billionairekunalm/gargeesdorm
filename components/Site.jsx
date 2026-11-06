@@ -123,7 +123,7 @@ function Marquee() {
 }
 
 function Stats() {
-  const s = [["24×7", "service, every day"], ["AC + Non-AC", "dormitories"], ["Sea view", "facing"], ["2", "helpline numbers"]];
+  const s = [["24×7", "service, every day"], ["AC + Non-AC", "dormitories"], ["Sea view", "facing"], ["Friendly", "helpful staff"]];
   return (
     <section className="stats"><div className="wrap stats-in">
       {s.map(([a, b], i) => <Rise key={a} i={i} className="stat"><strong>{a}</strong><span>{b}</span></Rise>)}

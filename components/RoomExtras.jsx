@@ -1,6 +1,6 @@
 "use client";
 import { useFrame } from "@react-three/fiber";
-import { RoundedBox } from "@react-three/drei";
+import { RoundedBox } from "./three-lite";
 import * as THREE from "three";
 import { useMemo, useRef } from "react";
 import { Bunk, AC } from "./BunkModel";

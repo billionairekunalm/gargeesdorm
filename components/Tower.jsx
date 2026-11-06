@@ -1,6 +1,6 @@
 "use client";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { ContactShadows, Environment, Lightformer } from "@react-three/drei";
+import { Env } from "./three-lite";
 import * as THREE from "three";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -107,9 +107,9 @@ export default function Tower() {
       <Canvas frameloop={vis ? "always" : "never"} dpr={[1, 1.5]} camera={{ fov: 36, position: [7.4, 5.2, 10.2] }} onCreated={({ camera }) => camera.lookAt(0, 2.3, 0)}>
         <ambientLight intensity={0.8} />
         <directionalLight position={[4, 6, 5]} intensity={1.7} color="#fff4e0" />
-        <Environment resolution={64}><Lightformer form="rect" intensity={2} position={[0, 5, 5]} scale={[10, 4, 1]} /></Environment>
+        <Env />
         <Building active={active} />
-        <ContactShadows position={[0, 0.01, 0]} opacity={0.4} scale={10} blur={2.5} far={4} />
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.012, 0.3]}><circleGeometry args={[3.2, 40]} /><meshBasicMaterial color="#6b5a3a" transparent opacity={0.12} depthWrite={false} /></mesh>
       </Canvas>
       <div className={`tower-tag badge${active ? " on" : ""}`}><b>Gargee&apos;s</b><span>4th Floor · Bay View Tower</span></div>
     </div>

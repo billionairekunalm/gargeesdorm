@@ -1,6 +1,6 @@
 "use client";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, Lightformer, Sparkles, PerformanceMonitor } from "@react-three/drei";
+import { Env, Dust, FpsGuard } from "./three-lite";
 import { Bunk, AC } from "./BunkModel";
 import { ExtraBeds, SeaWindow } from "./RoomExtras";
 import * as THREE from "three";
@@ -176,20 +176,15 @@ export default function Scene() {
   return (
     <div className="scene" aria-hidden="true">
       <Canvas frameloop={low ? "never" : active ? "always" : "never"} dpr={low ? [1, 1.25] : [1, 1.5]} camera={{ fov: 38, position: [1.4, 1.6, 5.4] }} shadows gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }} onCreated={({ gl }) => { gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 1.15; }}>
-        <PerformanceMonitor onDecline={() => setLow(true)} />
+        <FpsGuard onDecline={() => setLow(true)} />
         {low && <Throttle run={active} fps={30} />}
         <color attach="background" args={["#f5ebd9"]} />
         <ambientLight intensity={0.95} />
         <hemisphereLight args={["#fff6e8", "#d9c9a8", 0.8]} />
         <directionalLight position={[3, 5, 4]} intensity={2.6} color="#fff1d6" castShadow shadow-mapSize={low ? [512, 512] : [1024, 1024]} shadow-bias={-0.0006} shadow-camera-left={-4} shadow-camera-right={4} shadow-camera-top={4} shadow-camera-bottom={-3} />
-        <Environment resolution={low ? 32 : 64}>
-          <Lightformer form="rect" intensity={2.2} position={[0, 5, 5]} scale={[10, 4, 1]} />
-          <Lightformer form="rect" intensity={1.4} position={[-6, 2, 2]} scale={[4, 6, 1]} color="#cfe6ff" />
-          <Lightformer form="rect" intensity={0.9} position={[6, 1.5, 3]} scale={[3, 5, 1]} color="#ffd9a6" />
-          <Lightformer form="ring" intensity={1.4} position={[0, 4, -3]} scale={5} color="#ffffff" />
-        </Environment>
+        <Env />
         <Rig />
-        <Sparkles count={low ? 0 : 30} scale={[9, 4, 6]} position={[-1, 2, 1]} size={2.2} speed={0.25} color="#ffe2a6" opacity={0.7} />
+        <Dust count={low ? 0 : 30} scale={[9, 4, 6]} position={[-1, 2, 1]} size={0.035} speed={0.06} color="#ffe2a6" opacity={0.7} />
       </Canvas>
     </div>
   );
