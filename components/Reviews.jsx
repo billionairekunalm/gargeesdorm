@@ -23,7 +23,7 @@ function Words({ text }) {
   return (
     <>
       {text.split(" ").map((w, i) => (
-        <motion.span key={i} className="rv-w" initial={{ opacity: 0, y: 14, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ delay: 0.15 + i * 0.03, duration: 0.7, ease: EASE }}>{w}&nbsp;</motion.span>
+        <motion.span key={i} className="rv-w" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.03, duration: 0.7, ease: EASE }}>{w}&nbsp;</motion.span>
       ))}
     </>
   );
@@ -35,7 +35,7 @@ export default function Reviews() {
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
   const [dir, setDir] = useState(1);
-  const ref = useRef(null);
+  const ref = useRef(null), swipe = useRef(0);
   const seen = useInView(ref, { once: true, margin: "-80px" });
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const qy = useTransform(scrollYProgress, [0, 1], [60, -60]);
@@ -54,11 +54,11 @@ export default function Reviews() {
       <div className="rv-aurora" aria-hidden="true" />
       <motion.b className="rv-q" style={{ y: qy }} aria-hidden="true">“</motion.b>
       <div className="wrap rv-in">
-        <motion.span className="kick" initial={{ opacity: 0, y: 16 }} animate={seen ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, ease: EASE }}>Guest reviews</motion.span>
-        <motion.h2 initial={{ opacity: 0, y: 28, filter: "blur(10px)" }} animate={seen ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}} transition={{ duration: 1, ease: EASE, delay: 0.1 }}>
+        <motion.span className="kick" initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-40px" }} transition={{ duration: 0.8, ease: EASE }}>Guest reviews</motion.span>
+        <motion.h2 initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-40px" }} transition={{ duration: 1, ease: EASE, delay: 0.1 }}>
           In our guests&apos; <em>own words</em>
         </motion.h2>
-        <motion.i className="rv-line" initial={{ scaleX: 0 }} animate={seen ? { scaleX: 1 } : {}} transition={{ duration: 1.4, ease: EASE, delay: 0.3 }} />
+        <motion.i className="rv-line" initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ duration: 1.4, ease: EASE, delay: 0.3 }} />
 
         {N > 0 && (
           <div className="rv-stage" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
@@ -69,10 +69,10 @@ export default function Reviews() {
                 custom={dir}
                 initial={{ opacity: 0, x: 40 * dir }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -40 * dir, filter: "blur(6px)" }}
+                exit={{ opacity: 0, x: -40 * dir }}
                 transition={{ duration: 0.7, ease: EASE }}
-                drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.2}
-                onDragEnd={(e, info) => { if (info.offset.x < -60) go(1); else if (info.offset.x > 60) go(-1); }}
+                onTouchStart={(e) => { swipe.current = e.touches[0].clientX; }}
+                onTouchEnd={(e) => { const d = e.changedTouches[0].clientX - swipe.current; if (d < -50) go(1); else if (d > 50) go(-1); }}
               >
                 {r.rating ? <Stars n={r.rating} /> : null}
                 <blockquote className="rv-text"><Words text={r.text} /></blockquote>

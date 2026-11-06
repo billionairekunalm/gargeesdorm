@@ -1,5 +1,5 @@
 .rv{position:relative;overflow:hidden;padding:clamp(80px,11vw,140px) 0 clamp(70px,9vw,110px);background:#0a1530;color:#fff;text-align:center}
-.rv-aurora{position:absolute;inset:-20%;pointer-events:none;background:radial-gradient(40% 35% at 25% 30%,rgba(54,98,214,.45),transparent 70%),radial-gradient(35% 30% at 75% 65%,rgba(233,196,106,.16),transparent 70%),radial-gradient(45% 40% at 60% 20%,rgba(120,70,200,.22),transparent 70%);filter:blur(30px);animation:aur 18s ease-in-out infinite alternate}
+.rv-aurora{position:absolute;inset:0;pointer-events:none;background:radial-gradient(40% 35% at 25% 30%,rgba(54,98,214,.45),transparent 70%),radial-gradient(35% 30% at 75% 65%,rgba(233,196,106,.16),transparent 70%),radial-gradient(45% 40% at 60% 20%,rgba(120,70,200,.22),transparent 70%);animation:aur 18s ease-in-out infinite alternate}
 @keyframes aur{to{transform:translate3d(4%,3%,0) scale(1.08)}}
 .rv-q{position:absolute;left:50%;top:-4%;transform:translateX(-50%);font:700 clamp(16rem,42vw,34rem)/1 var(--f-display),serif;color:rgba(233,196,106,.055);pointer-events:none}
 .rv-in{position:relative}
@@ -9,7 +9,7 @@
 .rv-line{display:block;width:84px;height:1px;margin:22px auto 34px;background:linear-gradient(90deg,transparent,#e9c46a,transparent);transform-origin:center}
 
 .rv-stage{max-width:760px;margin:0 auto}
-.rv-card{position:relative;margin:0;padding:clamp(28px,4.5vw,46px) clamp(22px,4.5vw,52px);border-radius:26px;background:linear-gradient(160deg,rgba(255,255,255,.075),rgba(255,255,255,.03));border:1px solid rgba(233,196,106,.28);box-shadow:0 40px 80px -40px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.12);backdrop-filter:blur(10px);cursor:grab;min-height:250px;display:flex;flex-direction:column;align-items:center;gap:18px}
+.rv-card{position:relative;margin:0;padding:clamp(28px,4.5vw,46px) clamp(22px,4.5vw,52px);border-radius:26px;background:linear-gradient(160deg,rgba(255,255,255,.075),rgba(255,255,255,.03));border:1px solid rgba(233,196,106,.28);box-shadow:0 40px 80px -40px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.12);cursor:grab;min-height:250px;display:flex;flex-direction:column;align-items:center;gap:18px}
 .rv-card:active{cursor:grabbing}
 .rv-stars{display:flex;gap:6px}
 .rv-text{margin:0;font:400 clamp(1.15rem,2.6vw,1.6rem)/1.55 var(--f-display),serif;color:#f4efe3;font-style:italic;letter-spacing:.005em}
